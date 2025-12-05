@@ -31,35 +31,29 @@ def check_part_1(data: str) -> int:
 def check_part_2(data: str) -> int:
     n = len(data)
     m = 12
-    batteries = [_ for _ in range(0, m)]
+    batteries = []
+
     if args.debug_mode:
         print(f"{data=} {joltage(data, batteries)}")
-    for ii in range(m, n):  # 12, 13, .., 100
+    for ii in range(m):
         if args.debug_mode:
-            print(f"{ii=} {batteries=}; {data[ii]} > {data[batteries[-1]]} ?")
-
-        if data[ii] > data[batteries[-1]]:
-            batteries[-1] = ii
-            if args.debug_mode:
-                print(f"new joltage: {joltage(data, batteries)}")
-
-        # m=12, n=15
-        # data=     '2  3  4  2  3  4  2  3  4  2   3   4   2  7  8'
-        # batteries=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9,     11, 12]
-        # joltage == 234234234234
-        # joltage == 234234234242
-        for jj in range(m - 2, -1, -1):  # 10, 9, 8, .. 0
-            # jj = 9
-            # data[jj + 1] = 3
-            # data[jj] = 2
-            #
-            if args.debug_mode:
-                print(f"{ii=},{jj=}: {data[batteries[jj]+1]} > {data[batteries[jj]]} ?")
-            if data[batteries[jj]+1] > data[batteries[jj]]:
-                batteries[jj+1], batteries[jj] = batteries[jj+1]+1, batteries[jj+1]
-                # need to cascade down so long as there is space
+            print(f"[{ii}] for jj in range({0 if len(batteries) == 0 else (batteries[-1] + 1)}, {n - m + len(batteries)}):")
+        for jj in range(0 if len(batteries) == 0 else (batteries[-1] + 1), n - (m - ii)):
+            if ii == len(batteries):
+                batteries.append(jj)
                 if args.debug_mode:
-                    print(f"new joltage: {joltage(data, batteries)}")
+                    print(f"select next battery ({ii}). starting with data[{jj}]: {data[jj]}")
+                    print(f"{batteries = }")
+            if data[jj+1] > data[batteries[ii]]:
+                if args.debug_mode:
+                    print(f"battery {jj+1} has greater jolts ({data[jj+1]}) than batteries[{ii}] ({data[batteries[ii]]})")
+                batteries[ii] = jj+1
+        if len(batteries) <= ii:
+            batteries.append(batteries[-1] + 1)
+
+        if args.debug_mode:
+            print(f"[{ii}] {batteries = }")
+            print(f"[{ii}] new joltage: {joltage(data, batteries)}")
 
     return int(joltage(data, batteries))
 
