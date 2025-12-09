@@ -15,9 +15,45 @@ args = parser.parse_args()
 
 input_file = f"input/{'test' if args.test_mode else 'input'}.txt"
 
+def cephalomath(data: list[int], oper) -> int:
+    total = 1 if (oper == "*" or oper == "/") else 0
+
+    if args.debug_mode:
+        print(f'{data = }, {oper = }')
+
+    for value in data:
+        if oper == "*":
+            total *= value
+        elif oper == "/":
+            total /= value
+        elif oper == "+":
+            total += value
+        elif oper == "-":
+            total -= value
+    if args.debug_mode:
+        print(f'{total = }')
+
+    return total
+
 def check_part_1(data: list[list[int]], opers: list[str]) -> int:
+    if args.debug_mode:
+        print(f'{data = }')
+        print(f'{opers = }')
+
     n = len(opers)
-    check, totals = 0, [1 if _ == "*" or _ == "/" else 0 for _ in opers]
+    totals = [0] * n
+
+    for ii in range(n):
+        totals[ii] = cephalomath([d[ii] for d in data], opers[ii])
+
+    if args.debug_mode:
+        print(f'{totals = }')
+
+    sum_totals = sum(totals)
+    if args.debug_mode:
+        print(f'{sum_totals = }')
+    return sum_totals
+
     if args.debug_mode:
         print(f'{opers = }')
     for row in data:
@@ -47,7 +83,7 @@ rows: list[list[int]] = []
 operators: list[str] = []
 checksum = 0
 with open(input_file, 'r') as data:
-    for line in map(lambda _: _.strip(), data):
+    for line in map(lambda _: _.rstrip(), data):
         if line[0] in "*/+-":
             operators = [_ for _ in line.split(" ") if _ != ""]
             if args.debug_mode:
