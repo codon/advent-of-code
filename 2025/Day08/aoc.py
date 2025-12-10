@@ -53,8 +53,41 @@ def check_part_1(data: dict[int, set[str]], limit: int) -> int:
 
     return checksum
 
-def check_part_2(data: str) -> int:
-    pass
+def check_part_2(data: dict[int, set[str]], limit: int) -> int:
+    circuits: list[set[str]] = []
+    last_bridge: list[str] = []
+    for _, junctions in [(k, data[k]) for k in sorted(data.keys())]:
+        bridges = list(filter(lambda _: junctions & circuits[_], range(len(circuits))))
+        if bridges:
+            if args.debug_mode:
+                print(f'new circuit {junctions} connects to circuits {bridges}')
+            last_bridge = list(junctions)
+            new_circuit = junctions
+            for n in sorted(bridges, reverse=True):
+                new_circuit.update(circuits.pop(n))
+            circuits.append(new_circuit)
+
+        else:
+            circuits.append({*junctions})
+            if args.debug_mode:
+                print(f'create new circuit {circuits[-1]} from {junctions}')
+
+        if args.debug_mode:
+            print(f'there are {len(circuits)} circuits')
+            for ii in range(len(circuits)):
+                print(f'circuit[{ii}] is {len(circuits[ii])} junctions long')
+        if len(circuits) == 1 and len(circuits[0]) == limit:
+            break
+
+    if args.debug_mode:
+        for _ in circuits:
+            print(_)
+        print(f'{last_bridge=}')
+
+    x1, _, __ = map(int, last_bridge[0].split(','))
+    x2, _, __ = map(int, last_bridge[1].split(','))
+
+    return x1 * x2
 
 deltas: dict[int, set[str]] = {}
 max_connections = 10 if args.test_mode else 1000
